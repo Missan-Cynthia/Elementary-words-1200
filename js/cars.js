@@ -66,25 +66,33 @@ function randomCar(){
   const r=Math.random();const size=r<.48?CAR_SIZES[0]:r<.76?CAR_SIZES[1]:r<.94?CAR_SIZES[2]:CAR_SIZES[3];
   return {id:uid(),colorId,sizeId:size.id};
 }
-function awardCars(count=10,mode='garage'){
+function awardCars(count=3,mode='garage'){
   rewardReturnMode=mode;
   const rewards=[];for(let i=0;i<count;i++) rewards.push(randomCar());
   rewards.forEach(car=>pendingCars.push(car));flushPendingCars();saveGarage();showRewardModal(rewards)
 }
-function registerCorrectAnswer(char,mode='garage'){correctStreak++;if(char)markKnownChar(char);saveGarage();awardCars(10,mode)}
+function registerCorrectAnswer(char,mode='garage'){correctStreak++;if(char)markKnownChar(char);saveGarage();awardCars(3,mode)}
 function registerWrongAnswer(){correctStreak=0;saveGarage()}
 function showRewardModal(rewards){
   const wrap=document.getElementById('reward-cars');wrap.innerHTML='';
   rewards.forEach(car=>{const color=CAR_COLORS.find(c=>c.id===car.colorId),size=CAR_SIZES.find(z=>z.id===car.sizeId);const d=document.createElement('div');d.className='reward-car';d.innerHTML=`${carImage(size.id,color.id)}<small>${color.name}${size.name}</small>`;wrap.appendChild(d)});
   document.getElementById('reward-streak').textContent='連續答對 '+correctStreak+' 題 🔥';
-  const sub=document.querySelector('.reward-sub');sub.textContent=pendingCars.length?`獲得 10 台車！棋盤空位不足，還有 ${pendingCars.length} 台在待領區。`:'隨機獲得 10 台車，已放到棋盤上！';
-  const cont=document.getElementById('continue-reward-btn');cont.disabled=pendingCars.length>0;cont.textContent=pendingCars.length>0?'先整理棋盤':'繼續答題';
+  const sub=document.querySelector('.reward-sub');sub.textContent=pendingCars.length?`獲得 3 台車！棋盤空位不足，還有 ${pendingCars.length} 台在待領區。`:'隨機獲得 3 台車，已放到棋盤上！';
+  const cont=document.getElementById('continue-reward-btn');
+  const mustOrganize=quizQuestionsSinceGarage>=QUIZ_FORCE_GARAGE_EVERY;
+  cont.disabled=false;
+  cont.textContent=pendingCars.length>0?'棋盤滿了，先整理':(mustOrganize?'已答 10 題，整理車庫':'繼續答題');
   document.getElementById('reward-modal').classList.remove('hidden')
 }
 function closeRewardModal(){document.getElementById('reward-modal').classList.add('hidden');showScreen('garage')}
 function continueAfterReward(){
-  if(pendingCars.length){closeRewardModal();return}
   document.getElementById('reward-modal').classList.add('hidden');
+  if(pendingCars.length||quizQuestionsSinceGarage>=QUIZ_FORCE_GARAGE_EVERY){
+    quizQuestionsSinceGarage=0;
+    saveGarage();
+    showScreen('garage');
+    return;
+  }
   if(rewardReturnMode==='quiz') nextQuiz();
   else showScreen('garage');
 }
@@ -148,7 +156,7 @@ function closeCollectionView(){
 function exchangeCollectedBus(){
   const colorId=selectedCollectionColorId;
   if(!colorId||Number(storedCars[colorId]||0)<=0)return;
-  if(!confirm('要把收藏中的這台雙層巴士換成 1 張提示券嗎？'))return;
+  if(!confirm('要把收藏中的這台雙層巴士賣給系統，換 1 張提示券嗎？'))return;
   storedCars[colorId]=Math.max(0,Number(storedCars[colorId]||0)-1);
   hintTickets++;
   saveGarage();
@@ -167,14 +175,14 @@ function renderGarage(){
   const action=document.getElementById('board-action-panel'),chosen=selectedBoardCar();
   if(chosen&&chosen.sizeId==='xl'){const color=CAR_COLORS.find(c=>c.id===chosen.colorId);action.classList.remove('hidden');action.innerHTML=`已選擇 <b>${color.name}色雙層巴士</b><div class="actions"><button class="collect-btn" onclick="storeSelectedCar()">🏠 收藏到車庫</button><button class="sell-btn" onclick="sellSelectedCar()">💡 賣掉換提示券</button></div>`}else{action.classList.add('hidden');action.innerHTML=''}
   const board=document.getElementById('car-board');board.innerHTML='';const cells=BOARD_CAPACITY;
-  if(!boardCars.length){board.innerHTML='<div class="board-empty">🚗 棋盤還是空的<br>答對一題就會得到 10 台車！</div>'}
+  if(!boardCars.length){board.innerHTML='<div class="board-empty">🚗 棋盤還是空的<br>答對一題就會得到 3 台車！</div>'}
   else for(let pos=0;pos<cells;pos++){
     const car=carAt(pos),cell=document.createElement('div');cell.className='board-cell'+(car&&car.id===selectedCarId?' selected':'');cell.dataset.pos=pos;cell.onclick=()=>boardCellClick(pos);cell.ondragover=e=>e.preventDefault();cell.ondrop=e=>{e.preventDefault();moveOrMerge(e.dataTransfer.getData('text/plain'),pos)};
     if(car){const color=CAR_COLORS.find(c=>c.id===car.colorId),size=CAR_SIZES.find(z=>z.id===car.sizeId);cell.draggable=true;cell.ondragstart=e=>e.dataTransfer.setData('text/plain',car.id);cell.innerHTML=carImage(size.id,color.id)+`<span class="size-badge">${size.name}</span>`}
     board.appendChild(cell)
   }
   const collection=document.getElementById('garage-collection');collection.innerHTML='';
-  CAR_COLORS.forEach(color=>{const unlocked=unlockedColors.includes(color.id),n=Number(storedCars[color.id]||0);const d=document.createElement('div');d.className='collection-card '+(unlocked?'':'locked');d.innerHTML=unlocked?`${carImage('xl',color.id)}<b>${color.name}色雙層巴士</b><div class="collection-count">收藏 ${n} 台</div><small>${n>0?'點開查看或換提示券':'尚未收藏'}</small>`:`<div style="font-size:30px">🔒</div><b>未解鎖</b><small>雙層巴士</small>`;if(unlocked&&n>0)d.onclick=()=>openCollectionView(color.id);collection.appendChild(d)})
+  CAR_COLORS.forEach(color=>{const unlocked=unlockedColors.includes(color.id),n=Number(storedCars[color.id]||0);const d=document.createElement('div');d.className='collection-card '+(unlocked?'':'locked');d.innerHTML=unlocked?`${carImage('xl',color.id)}<b>${color.name}色雙層巴士</b><div class="collection-count">收藏 ${n} 台</div><small>${n>0?'點開查看或賣給系統換提示券':'尚未收藏'}</small>`:`<div style="font-size:30px">🔒</div><b>未解鎖</b><small>雙層巴士</small>`;if(unlocked&&n>0)d.onclick=()=>openCollectionView(color.id);collection.appendChild(d)})
 }
 
 
