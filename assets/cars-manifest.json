@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "format": "webp",
+  "size": [
+    512,
+    512
+  ],
+  "mergeRules": {
+    "car": "van",
+    "van": "minibus",
+    "minibus": "double-decker",
+    "double-decker": null
+  },
+  "doubleDeckerActions": [
+    "collect",
+    "exchangeHintTicket"
+  ],
+  "vehicles": {
+    "car": {
+      "label": "汽車",
+      "colors": {
+        "black": "./assets/cars/car/black.webp",
+        "blue": "./assets/cars/car/blue.webp",
+        "brown": "./assets/cars/car/brown.webp",
+        "gray": "./assets/cars/car/gray.webp",
+        "green": "./assets/cars/car/green.webp",
+        "orange": "./assets/cars/car/orange.webp",
+        "purple": "./assets/cars/car/purple.webp",
+        "red": "./assets/cars/car/red.webp",
+        "white": "./assets/cars/car/white.webp",
+        "yellow": "./assets/cars/car/yellow.webp"
+      }
+    },
+    "van": {
+      "label": "箱型車",
+      "colors": {
+        "black": "./assets/cars/van/black.webp",
+        "blue": "./assets/cars/van/blue.webp",
+        "brown": "./assets/cars/van/brown.webp",
+        "gray": "./assets/cars/van/gray.webp",
+        "green": "./assets/cars/van/green.webp",
+        "orange": "./assets/cars/van/orange.webp",
+        "purple": "./assets/cars/van/purple.webp",
+        "red": "./assets/cars/van/red.webp",
+        "white": "./assets/cars/van/white.webp",
+        "yellow": "./assets/cars/van/yellow.webp"
+      }
+    },
+    "minibus": {
+      "label": "小巴士",
+      "colors": {
+        "black": "./assets/cars/minibus/black.webp",
+        "blue": "./assets/cars/minibus/blue.webp",
+        "brown": "./assets/cars/minibus/brown.webp",
+        "gray": "./assets/cars/minibus/gray.webp",
+        "green": "./assets/cars/minibus/green.webp",
+        "orange": "./assets/cars/minibus/orange.webp",
+        "purple": "./assets/cars/minibus/purple.webp",
+        "red": "./assets/cars/minibus/red.webp",
+        "white": "./assets/cars/minibus/white.webp",
+        "yellow": "./assets/cars/minibus/yellow.webp"
+      }
+    },
+    "double-decker": {
+      "label": "雙層巴士",
+      "colors": {
+        "black": "./assets/cars/double-decker/black.webp",
+        "blue": "./assets/cars/double-decker/blue.webp",
+        "brown": "./assets/cars/double-decker/brown.webp",
+        "gray": "./assets/cars/double-decker/gray.webp",
+        "green": "./assets/cars/double-decker/green.webp",
+        "orange": "./assets/cars/double-decker/orange.webp",
+        "purple": "./assets/cars/double-decker/purple.webp",
+        "red": "./assets/cars/double-decker/red.webp",
+        "white": "./assets/cars/double-decker/white.webp",
+        "yellow": "./assets/cars/double-decker/yellow.webp"
+      }
+    }
+  }
+}
